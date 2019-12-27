@@ -1,22 +1,33 @@
 package week15;
+
+import java.io.IOException;
 import java.net.*;
 
 public class ChatServer {
-
-    public static void main(String args[]) throws Exception {
-        MulticastSocket server = new MulticastSocket(1234);
-        InetAddress group = InetAddress.getByName("234.5.6.7");
-        //getByName – Mengembalikan alamat IP yang diberikan oleh Host
-        server.joinGroup(group);
-        boolean infinite = true;
-        /* Server terus-menerus menerima data dan mencetak mereka */
-        while (infinite) {
+    private MulticastSocket server;
+    private InetAddress group;
+    
+    public void startServer(int port){
+        try {
+            server = new MulticastSocket(port);
+            group = InetAddress.getByName("234.5.6.7");
+            
+            server.joinGroup(group);
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+    }
+    
+    public String getMsg(){
+        String msg = "";
+        try {
             byte buf[] = new byte[1024];
             DatagramPacket data = new DatagramPacket(buf,buf.length);
             server.receive(data);
-            String msg = new String(data.getData()).trim();
-            System.out.println(msg);
+            msg = new String(data.getData()).trim();
+        } catch (IOException e) {
+            System.err.println(e);
         }
-        server.close();
+        return msg;
     }
 }
